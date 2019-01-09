@@ -56,6 +56,7 @@ class WC_Points_Rewards_Product {
 		$message = get_option( 'wc_points_rewards_single_product_message' );
 
 		$points_earned = self::get_points_earned_for_product_purchase( $product );
+		$points_earned = WC_Points_Rewards_Manager::round_the_points( $points_earned );
 
 		// bail if none available
 		if ( ! $message || ! $points_earned ) {
@@ -125,7 +126,7 @@ class WC_Points_Rewards_Product {
 			foreach ( $variations as $key => $variation ) {
 				// get points
 				$points = self::get_points_earned_for_product_purchase( $variation['variation_id'] );
-
+				$points = WC_Points_Rewards_Manager::round_the_points( $points );
 				// if this is the highest points value save it
 				if ( $points > $highest['points'] ) {
 					$highest = array( 'key' => $key, 'points' => $points );
@@ -150,7 +151,7 @@ class WC_Points_Rewards_Product {
 
 		$message = get_option( 'wc_points_rewards_variable_product_message', '' );
 		if ( ! empty( $message ) ) {
-			
+
 			// replace placeholders inside settings values
 			$message = str_replace( '{points}', number_format_i18n( $points ), $message );
 			$message = str_replace( '{points_label}', $wc_points_rewards->get_points_label( $points ), $message );
@@ -200,6 +201,7 @@ class WC_Points_Rewards_Product {
 		$message = get_option( 'wc_points_rewards_single_product_message' );
 
 		$points_earned = self::get_points_earned_for_product_purchase( $variation );
+		$points_earned = WC_Points_Rewards_Manager::round_the_points( $points_earnedo );
 
 		// bail if none available
 		if ( ! $message || ! $points_earned ) {
@@ -226,6 +228,7 @@ class WC_Points_Rewards_Product {
 		$message = get_option( 'wc_points_rewards_single_product_message' );
 
 		$points_earned = self::get_points_earned_for_product_purchase( $product );
+		$points_earned = WC_Points_Rewards_Manager::round_the_points( $points_earned );
 
 		// bail if none available
 		if ( ! $message || ! $points_earned ) {
@@ -255,7 +258,7 @@ class WC_Points_Rewards_Product {
 		global $wc_points_rewards;
 
 		$points_earned = self::get_points_earned_for_product_purchase( $product );
-
+		$points_earned = WC_Points_Rewards_Manager::round_the_points( $points_earned );
 		// the min/max points earned for variable products can't be determined reliably, so the 'earn X points...' message
 		// is not shown until a variation is selected, unless the prices for the variations are all the same
 		// in which case, treat it like a simple product and show the message
@@ -328,7 +331,7 @@ class WC_Points_Rewards_Product {
 	 * @param object $product the product to get the points earned for
 	 * @return int the points earned
 	 */
-	public static function get_points_earned_for_product_purchase( $product, $order = null ) {
+	public static function get_points_earned_for_product_purchase( $product, $order = null, $context = 'view' ) {
 
 		// if we don't have a product object let's try to make one (hopefully they gave us the ID)
 		if ( ! is_object( $product ) ) {
@@ -348,9 +351,8 @@ class WC_Points_Rewards_Product {
 		if ( is_numeric( $points ) ) {
 			return $points;
 		}
-
 		// otherwise, show the default points set for the price of the product
-		return WC_Points_Rewards_Manager::calculate_points( $product->get_price() );
+		return WC_Points_Rewards_Manager::calculate_points( $product->get_price( $context ) );
 	}
 
 	/**

@@ -140,11 +140,11 @@ class WC_Points_Rewards_Order {
 			$product->set_price( $item_price );
 
 			// Calc points earned
-			$points_earned += apply_filters( 'woocommerce_points_earned_for_order_item', WC_Points_Rewards_Product::get_points_earned_for_product_purchase( $product, $order ), $product, $item_key, $item, $order ) * $item['qty'];
+			$points_earned += apply_filters( 'woocommerce_points_earned_for_order_item', WC_Points_Rewards_Product::get_points_earned_for_product_purchase( $product, $order, 'edit' ), $product, $item_key, $item, $order ) * $item['qty'];
 		}
 
 		// Reduce by any discounts.  One minor drawback: if the discount includes a discount on tax and/or shipping
-		// it will cost the customer points, but this is a better solution than granting full points for discounted orders
+		// It will cost the customer points, but this is a better solution than granting full points for discounted orders.
 		if ( version_compare( WC_VERSION, '2.3', '<' ) ) {
 			$discount = $order->get_total_discount( false );
 		} else {
@@ -153,30 +153,12 @@ class WC_Points_Rewards_Order {
 
 		$points_earned -= min( WC_Points_Rewards_Manager::calculate_points( $discount ), $points_earned );
 
-		// check if applied coupons have a points modifier and use it to adjust the points earned
+		// Check if applied coupons have a points modifier and use it to adjust the points earned.
 		$coupons = $order->get_used_coupons();
 
-		if ( ! empty( $coupons ) ) {
+		$points_earned = WC_Points_Rewards_Manager::calculate_points_modification_from_coupons( $points_earned, $coupons );
 
-			$points_modifier = 0;
-
-			// get the maximum points modifier if there are multiple coupons applied, each with their own modifier
-			foreach ( $coupons as $coupon_code ) {
-
-				$coupon = new WC_Coupon( $coupon_code );
-				$coupon_id = version_compare( WC_VERSION, '3.0', '<' ) ? $coupon->id : $coupon->get_id();
-				$wc_points_modifier = get_post_meta( $coupon_id, '_wc_points_modifier' );
-
-				if ( ! empty( $wc_points_modifier[0] ) && $wc_points_modifier[0] > $points_modifier ) {
-					$points_modifier = $wc_points_modifier[0];
-				}
-			}
-
-			if ( $points_modifier > 0 ) {
-				$points_earned = round( $points_earned * ( $points_modifier / 100 ) );
-			}
-		}
-
+		$points_earned = WC_Points_Rewards_Manager::round_the_points( $points_earned );
 		return apply_filters( 'wc_points_rewards_points_earned_for_purchase', $points_earned, $order );
 	}
 
@@ -206,7 +188,7 @@ class WC_Points_Rewards_Order {
 		if ( isset( WC()->cart->coupon_discount_amounts[ $discount_code ] ) ) {
 			$discount_amount += WC()->cart->coupon_discount_amounts[ $discount_code ];
 		}
-		if ( WC()->cart->prices_include_tax && isset( WC()->cart->coupon_discount_tax_amounts[ $discount_code ] ) ) {
+		if ( ! empty( WC()->cart->prices_include_tax ) && isset( WC()->cart->coupon_discount_tax_amounts[ $discount_code ] ) ) {
 			$discount_amount += WC()->cart->coupon_discount_tax_amounts[ $discount_code ];
 		}
 
@@ -260,7 +242,7 @@ class WC_Points_Rewards_Order {
 			if ( isset( WC()->cart->coupon_discount_amounts[ $discount_code ] ) ) {
 				$discount_amount += WC()->cart->coupon_discount_amounts[ $discount_code ];
 			}
-			if ( WC()->cart->prices_include_tax && isset( WC()->cart->coupon_discount_tax_amounts[ $discount_code ] ) ) {
+			if ( ! empty( WC()->cart->prices_include_tax ) && isset( WC()->cart->coupon_discount_tax_amounts[ $discount_code ] ) ) {
 				$discount_amount += WC()->cart->coupon_discount_tax_amounts[ $discount_code ];
 			}
 
@@ -357,22 +339,22 @@ class WC_Points_Rewards_Order {
 		$order         = wc_get_order( $order_id );
 		$order_user_id = version_compare( WC_VERSION, '3.0', '<' ) ? $order->user_id : $order->get_user_id();
 
-		// bail for guest user
+		// Bail for guest user.
 		if ( ! $order_user_id ) {
 			return;
 		}
 
-		// handle removing any points earned for the order
+		// Handle removing any points earned for the order.
 		$points_earned = get_post_meta( $order_id, '_wc_points_earned', true );
 
 		if ( $points_earned > 0 ) {
 			$refund          = new WC_Order_Refund( $refund_id );
 			$points_refunded = WC_Points_Rewards_Manager::calculate_points( $refund->get_amount() );
-
-			// remove points
+			$points_refunded = WC_Points_Rewards_Manager::round_the_points( $points_refunded );
+			// Remove points.
 			WC_Points_Rewards_Manager::decrease_points( $order_user_id, $points_refunded, 'order-refunded', null, $order_id );
 
-			// add order note
+			// Add order note.
 			/* translators: 1: points earned 2: points earned label */
 			$order->add_order_note( sprintf( __( '%1$d %2$s removed.', 'woocommerce-points-and-rewards' ), $points_refunded, $wc_points_rewards->get_points_label( $points_refunded ) ) );
 		}

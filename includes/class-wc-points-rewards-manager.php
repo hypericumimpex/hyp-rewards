@@ -523,19 +523,18 @@ class WC_Points_Rewards_Manager {
 		return self::$found_users;
 	}
 
-
-
 	/**
 	 * Calculate the points earned for a purchase based on the given amount. This uses the ratio set in the admin settings
-	 * (e.g. earn 10 points for every $1 spent). Points are rounded up to the nearest whole integer
+	 * (e.g. earn 10 points for every $1 spent).
 	 *
 	 * @since 1.0
-	 * @param string|float the amount to calculate the points earned for
-	 * @return int the points earned
+	 * @param string|float $amount The amount to calculate the points earned for.
+	 *
+	 * @return int The points earned.
 	 */
 	public static function calculate_points( $amount ) {
 
-		// ratio string "a:a" to array "[a,a]"
+		// Ratio string "a:a" to array "[a,a]".
 		$ratio = explode( ':', get_option( 'wc_points_rewards_earn_points_ratio', '' ) );
 		if ( empty( $ratio ) ) {
 			return 0;
@@ -548,18 +547,7 @@ class WC_Points_Rewards_Manager {
 			return 0;
 		}
 
-
-		switch ( get_option( 'wc_points_rewards_earn_points_rounding' ) ) {
-			case 'ceil' :
-				return ceil( $amount * ( $points / $monetary_value ) );
-			break;
-			case 'floor' :
-				return floor( $amount * ( $points / $monetary_value ) );
-			break;
-			default :
-				return round( $amount * ( $points / $monetary_value ) );
-			break;
-		}
+		return $amount * ( $points / $monetary_value );
 	}
 
 
@@ -602,5 +590,69 @@ class WC_Points_Rewards_Manager {
 		return ceil( $required_points );
 	}
 
+	/**
+	 * Calculate how much coupons affect points
+	 *
+	 * @since 1.6.16
+	 * @param int   $points That will be modified by coupons.
+	 * @param array $coupons Array of coupons that can affect the points.
+	 *
+	 * @return int $points Points after coupons modification.
+	 */
+	public static function calculate_points_modification_from_coupons( $points, $coupons ) {
+		if ( ! empty( $coupons ) ) {
+
+			$points_modifier = 0;
+
+			// Get the maximum points modifier if there are multiple coupons applied, each with their own modifier.
+			foreach ( $coupons as $coupon_code ) {
+
+				$coupon             = new WC_Coupon( $coupon_code );
+				$coupon_id          = version_compare( WC_VERSION, '3.0', '<' ) ? $coupon->id : $coupon->get_id();
+				$wc_points_modifier = get_post_meta( $coupon_id, '_wc_points_modifier' );
+
+				if ( ! empty( $wc_points_modifier[0] ) ) {
+					// User can use % in the setting field so we need to remove it here.
+					$coupon_points_modifier = str_replace( '%', '', $wc_points_modifier[0] );
+					// Find the biggest one.
+					if ( $coupon_points_modifier > $points_modifier ) {
+						$points_modifier = $coupon_points_modifier;
+					}
+				}
+			}
+
+			if ( $points_modifier > 0 ) {
+				$points = $points * ( $points_modifier / 100 );
+			}
+		}
+
+		return $points;
+	}
+
+	/**
+	 * Round the points using merchant selected method.
+	 *
+	 * @since 1.6.16
+	 * @param float $points That will be rounded.
+	 *
+	 * @return int $points Points after rounding.
+	 */
+	public static function round_the_points( $points ) {
+		$rounding_option = get_option( 'wc_points_rewards_earn_points_rounding' );
+
+		switch ( $rounding_option ) {
+			case 'ceil':
+				$points_earned = ceil( $points );
+				break;
+			case 'floor':
+				$points_earned = floor( $points );
+				break;
+			default:
+				$points_earned = round( $points );
+				break;
+		}
+
+		return $points_earned;
+	}
 
 } // end \WC_Points_Rewards_Manager class

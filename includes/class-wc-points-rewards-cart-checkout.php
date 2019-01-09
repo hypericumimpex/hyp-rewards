@@ -520,33 +520,15 @@ class WC_Points_Rewards_Cart_Checkout {
 
 		$discount_amount = min( WC_Points_Rewards_Manager::calculate_points( $discount ), $points_earned );
 
-		// apply a filter that will allow users to manipulate the way discounts affect points earned
+		// Apply a filter that will allow users to manipulate the way discounts affect points earned.
 		$points_earned = apply_filters( 'wc_points_rewards_discount_points_modifier', $points_earned - $discount_amount, $points_earned, $discount_amount, $discount );
 
-		// check if applied coupons have a points modifier and use it to adjust the points earned
+		// Check if applied coupons have a points modifier and use it to adjust the points earned.
 		$coupons = WC()->cart->get_applied_coupons();
 
-		if ( ! empty( $coupons ) ) {
+		$points_earned = WC_Points_Rewards_Manager::calculate_points_modification_from_coupons( $points_earned, $coupons );
 
-			$points_modifier = 0;
-
-			// get the maximum points modifier if there are multiple coupons applied, each with their own modifier
-			foreach ( $coupons as $coupon_code ) {
-
-				$coupon = new WC_Coupon( $coupon_code );
-				$coupon_id = version_compare( WC_VERSION, '3.0', '<' ) ? $coupon->id : $coupon->get_id();
-				$wc_points_modifier = get_post_meta( $coupon_id, '_wc_points_modifier' );
-
-				if ( ! empty( $wc_points_modifier[0] ) && $wc_points_modifier[0] > $points_modifier ) {
-					$points_modifier = $wc_points_modifier[0];
-				}
-			}
-
-			if ( $points_modifier > 0 ) {
-				$points_earned = round( $points_earned * ( $points_modifier / 100 ) );
-			}
-		}
-
+		$points_earned = WC_Points_Rewards_Manager::round_the_points( $points_earned );
 		return apply_filters( 'wc_points_rewards_points_earned_for_purchase', $points_earned, WC()->cart );
 	}
 
@@ -606,7 +588,7 @@ class WC_Points_Rewards_Cart_Checkout {
 				} elseif ( method_exists( $item['data'], 'get_price_including_tax' ) ) {
 					$max_discount = $item['data']->get_price_including_tax( $item['quantity'] );
 				} else {
-					$max_discount = $item['data']->get_price() * $item['quantity'];
+					$max_discount = $item['data']->get_price( 'edit' ) * $item['quantity'];
 				}
 
 				// if the discount available is greater than the max discount, apply the max discount
@@ -655,7 +637,7 @@ class WC_Points_Rewards_Cart_Checkout {
 			$discount_applied = $max_discount;
 		}
 
-		return $discount_applied;
+		return filter_var( $discount_applied, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION );
 	}
 
 	/**

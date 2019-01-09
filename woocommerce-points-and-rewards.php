@@ -5,7 +5,7 @@
  * Description: Reward customers for purchases and other actions with points which can be redeemed for discounts
  * Author: WooCommerce
  * Author URI: https://github.com/hypericumimpex/
- * Version: 1.6.15
+ * Version: 1.6.16
  * Text Domain: woocommerce-points-and-rewards
  * Domain Path: /languages/
  * WC tested up to: 3.5
@@ -133,7 +133,7 @@ $GLOBALS['wc_points_rewards'] = new WC_Points_Rewards();
 class WC_Points_Rewards {
 
 	/** plugin version number */
-	const VERSION = '1.6.15';
+	const VERSION = '1.6.16';
 
 	/** @var string the plugin path */
 	private $plugin_path;
@@ -187,6 +187,9 @@ class WC_Points_Rewards {
 		add_action( 'init', array( $this, 'load_translation' ) );
 		add_action( 'init', array( $this, 'include_template_functions' ), 25 );
 
+		// display points on a separate tab on user's account page
+		add_action( 'init', array( $this, 'add_endpoints' ) );
+
 		// initialize user point balance on user create/update, and remove the user points record on user delete
 		add_action( 'user_register',  array( $this, 'refresh_user_points_balance' ) );
 		add_action( 'profile_update', array( $this, 'refresh_user_points_balance' ) );
@@ -202,19 +205,9 @@ class WC_Points_Rewards {
 
 		// admin
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-
 			// add a 'Configure' link to the plugin action links
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'add_plugin_configure_link' ) );
 
-		} else {
-
-			// display points on a separate tab on user's account page
-			add_action( 'init', array( $this, 'add_endpoints' ) );
-			add_filter( 'query_vars', array( $this, 'add_query_vars' ), 0 );
-
-
-			add_action( 'woocommerce_account_menu_items', array( $this, 'add_menu_items' ) );
-			add_action( 'woocommerce_account_' . $this->endpoint . '_endpoint', 'woocommerce_points_rewards_my_points' );
 		}
 
 		// run every time
@@ -246,20 +239,6 @@ class WC_Points_Rewards {
 	}
 
 	/**
-	 * Add new query var.
-	 *
-	 * @since 1.6.3
-	 *
-	 * @param array $vars
-	 * @return array
-	 */
-	public function add_query_vars( $vars ) {
-		$vars[] = $this->endpoint;
-
-		return $vars;
-	}
-
-	/**
 	 * Insert the new endpoint into the My Account menu.
 	 *
 	 * @since 1.6.3
@@ -273,7 +252,7 @@ class WC_Points_Rewards {
 		unset( $menu_items['customer-logout'] );
 
 		// Insert Points & Rewards.
-		$menu_items[ $this->endpoint ] = $this->get_points_label( 1 );
+		$menu_items[ $this->endpoint ] = $this->get_points_label( 2 );
 
 		// Insert back logout item.
 		$menu_items['customer-logout'] = $logout;
@@ -352,6 +331,9 @@ class WC_Points_Rewards {
 
 		// points log access class
 		require_once( dirname( __FILE__ ) . '/includes/class-wc-points-rewards-points-log.php' );
+
+		add_action( 'woocommerce_account_menu_items', array( $this, 'add_menu_items' ) );
+		add_action( 'woocommerce_account_' . $this->endpoint . '_endpoint', 'woocommerce_points_rewards_my_points' );
 
 		if ( is_admin() ) {
 			$this->admin_includes();

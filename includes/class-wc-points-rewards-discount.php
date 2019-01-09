@@ -180,7 +180,7 @@ class WC_Points_Rewards_Discount {
 
 		if ( wc_prices_include_tax() ) {
 			$sub_total_inc_tax = WC()->cart->subtotal - $existing_discount_amounts;
-			
+
 			$discount_percent = (
 				wc_get_price_including_tax( $cart_item_data ) * $cart_item_qty - $this->get_cart_item_discount_total( $cart_item )
 			) / $sub_total_inc_tax;

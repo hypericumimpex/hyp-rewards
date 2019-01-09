@@ -1,5 +1,12 @@
 *** WooCommerce Points and Rewards Changelog ***
 
+2019-01-07 - version 1.6.16
+* Fix - My Account Points tab not found after visiting permalinks page.
+* Fix - Allow usage of % sign in points modifier field for coupons.
+* Fix - Round points at the last possible moment to avoid rounding errors.
+* Fix - Improve compatibility with product discounts applied by WooCommerce Memberships
+* Fix - PHP notice for non-numeric value on the cart screen.
+
 2018-10-09 - version 1.6.15
 * Fix - My Account Points tab would sometimes render 404 error.
 * Fix - Changing points label would sometimes cause My Account Points tab to render 404 error.
