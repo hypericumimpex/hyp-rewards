@@ -5,7 +5,7 @@
  * Description: Reward customers for purchases and other actions with points which can be redeemed for discounts
  * Author: WooCommerce
  * Author URI: https://github.com/hypericumimpex/
- * Version: 1.6.16
+ * Version: 1.6.17
  * Text Domain: woocommerce-points-and-rewards
  * Domain Path: /languages/
  * WC tested up to: 3.5
@@ -133,7 +133,7 @@ $GLOBALS['wc_points_rewards'] = new WC_Points_Rewards();
 class WC_Points_Rewards {
 
 	/** plugin version number */
-	const VERSION = '1.6.16';
+	const VERSION = '1.6.17';
 
 	/** @var string the plugin path */
 	private $plugin_path;

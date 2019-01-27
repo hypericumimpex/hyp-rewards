@@ -1,5 +1,8 @@
 *** WooCommerce Points and Rewards Changelog ***
 
+2019-01-24 - version 1.6.17
+* Fix - Typo $points_earnedo should be $points_earned
+
 2019-01-07 - version 1.6.16
 * Fix - My Account Points tab not found after visiting permalinks page.
 * Fix - Allow usage of % sign in points modifier field for coupons.

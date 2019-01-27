@@ -201,7 +201,7 @@ class WC_Points_Rewards_Product {
 		$message = get_option( 'wc_points_rewards_single_product_message' );
 
 		$points_earned = self::get_points_earned_for_product_purchase( $variation );
-		$points_earned = WC_Points_Rewards_Manager::round_the_points( $points_earnedo );
+		$points_earned = WC_Points_Rewards_Manager::round_the_points( $points_earned );
 
 		// bail if none available
 		if ( ! $message || ! $points_earned ) {
