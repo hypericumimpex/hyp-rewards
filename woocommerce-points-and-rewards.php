@@ -8,6 +8,7 @@
  * Version: 1.6.18
  * Text Domain: woocommerce-points-and-rewards
  * Domain Path: /languages/
+ * Tested up to: 5.0
  * WC tested up to: 3.5
  * WC requires at least: 2.6
  *
