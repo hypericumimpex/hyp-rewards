@@ -1,5 +1,8 @@
 *** WooCommerce Points and Rewards Changelog ***
 
+2019-03-04 - version 1.6.18
+* Fix - Points log order by points not working.
+
 2019-01-24 - version 1.6.17
 * Fix - Typo $points_earnedo should be $points_earned
 

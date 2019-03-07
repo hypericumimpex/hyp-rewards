@@ -5,7 +5,7 @@
  * Description: Reward customers for purchases and other actions with points which can be redeemed for discounts
  * Author: WooCommerce
  * Author URI: https://github.com/hypericumimpex/
- * Version: 1.6.17
+ * Version: 1.6.18
  * Text Domain: woocommerce-points-and-rewards
  * Domain Path: /languages/
  * WC tested up to: 3.5

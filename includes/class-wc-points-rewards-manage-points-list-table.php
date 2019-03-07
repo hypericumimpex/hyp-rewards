@@ -296,7 +296,7 @@ class WC_Points_Rewards_Manage_Points_List_Table extends WP_List_Table {
 		}
 
 		// Build a query we can use for count and results
-		$query = "FROM {$wpdb->users} as users LEFT JOIN {$wpdb->prefix}wc_points_rewards_user_points as points_table ON users.ID = points_table.user_id WHERE 1=1 {$where} GROUP BY users.ID ORDER BY (points_table.points_balance+0) {$order}";
+		$query = "FROM {$wpdb->users} as users LEFT JOIN {$wpdb->prefix}wc_points_rewards_user_points as points_table ON users.ID = points_table.user_id WHERE 1=1 {$where} GROUP BY users.ID ORDER BY SUM(points_table.points_balance+0) {$order}";
 
 		return array(
 			'count'   => $wpdb->get_var( "SELECT COUNT( DISTINCT users.ID ) as found_user_points FROM {$wpdb->users} as users LEFT JOIN {$wpdb->prefix}wc_points_rewards_user_points as points_table ON users.ID = points_table.user_id WHERE 1=1 {$where}" ),
