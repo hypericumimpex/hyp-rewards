@@ -1,5 +1,8 @@
 *** WooCommerce Points and Rewards Changelog ***
 
+2019-04-16 - version 1.6.19
+* Tweak - WC 3.6 compatibility.
+
 2019-03-04 - version 1.6.18
 * Fix - Points log order by points not working.
 

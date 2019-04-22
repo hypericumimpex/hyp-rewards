@@ -430,8 +430,8 @@ class WC_Points_Rewards_Product_Admin {
 	public function render_edit_product_category_fields( $term ) {
 
 		// get points earned / maximum points discount from product category meta
-		$points_earned = get_woocommerce_term_meta( $term->term_id, '_wc_points_earned', true );
-		$max_discount  = get_woocommerce_term_meta( $term->term_id, '_wc_points_max_discount', true );
+		$points_earned = $this->get_term_meta( $term->term_id, '_wc_points_earned', true );
+		$max_discount  = $this->get_term_meta( $term->term_id, '_wc_points_max_discount', true );
 
 		$this->get_product_category_fields_html( $points_earned, $max_discount );
 
@@ -491,23 +491,23 @@ class WC_Points_Rewards_Product_Admin {
 
 		// points earned
 		if ( isset( $_POST['_wc_points_earned'] ) && '' !== $_POST['_wc_points_earned'] ) {
-			update_woocommerce_term_meta( $term_id, '_wc_points_earned', $_POST['_wc_points_earned'] );
+			$this->update_term_meta( $term_id, '_wc_points_earned', $_POST['_wc_points_earned'] );
 		} else {
-			delete_woocommerce_term_meta( $term_id, '_wc_points_earned' );
+			$this->delete_term_meta( $term_id, '_wc_points_earned' );
 		}
 
 		// max points discount
 		if ( isset( $_POST['_wc_points_max_discount'] ) && '' !== $_POST['_wc_points_max_discount'] ) {
-			update_woocommerce_term_meta( $term_id, '_wc_points_max_discount', $_POST['_wc_points_max_discount'] );
+			$this->update_term_meta( $term_id, '_wc_points_max_discount', $_POST['_wc_points_max_discount'] );
 		} else {
-			delete_woocommerce_term_meta( $term_id, '_wc_points_max_discount' );
+			$this->delete_term_meta( $term_id, '_wc_points_max_discount' );
 		}
 
 		// change rewewal points
 		if ( isset( $_POST['_wc_points_renewal_points'] ) && '' !== $_POST['_wc_points_renewal_points'] ) {
-			update_woocommerce_term_meta( $term_id, '_wc_points_renewal_points', $_POST['_wc_points_renewal_points'] );
+			$this->update_term_meta( $term_id, '_wc_points_renewal_points', $_POST['_wc_points_renewal_points'] );
 		} else {
-			delete_woocommerce_term_meta( $term_id, '_wc_points_renewal_points' );
+			$this->delete_term_meta( $term_id, '_wc_points_renewal_points' );
 		}
 
 		// Clear all points transients
@@ -563,7 +563,7 @@ class WC_Points_Rewards_Product_Admin {
 	 */
 	public function add_product_category_list_table_points_column( $columns, $column, $term_id ) {
 
-		$points_earned = get_woocommerce_term_meta( $term_id, '_wc_points_earned' );
+		$points_earned = $this->get_term_meta( $term_id, '_wc_points_earned' );
 
 		if ( 'points_earned' == $column ) {
 			echo ( '' !== $points_earned ) ? esc_html( $points_earned ) : '&mdash;';
@@ -572,5 +572,56 @@ class WC_Points_Rewards_Product_Admin {
 		return $columns;
 	}
 
+	/**
+	 *
+	 * Updates a term meta. Compatibility function for WC 3.6.
+	 *
+	 * @since 1.6.19
+	 * @param int    $term_id    Term ID.
+	 * @param string $meta_key   Meta key.
+	 * @param mixed  $meta_value Meta value.
+	 * @return bool
+	 */
+	private function update_term_meta( $term_id, $meta_key, $meta_value ) {
+		if ( version_compare( WC_VERSION, '3.6', 'ge' ) ) {
+			return update_term_meta( $term_id, $meta_key, $meta_value );
+		} else {
+			return update_woocommerce_term_meta( $term_id, $meta_key, $meta_value );
+		}
+	}
+
+	/**
+	 *
+	 * Deletes a term meta. Compatibility function for WC 3.6.
+	 *
+	 * @since 1.6.19
+	 * @param int    $term_id    Term ID.
+	 * @param string $meta_key   Meta key.
+	 * @return bool
+	 */
+	private function delete_term_meta( $term_id, $meta_key ) {
+		if ( version_compare( WC_VERSION, '3.6', 'ge' ) ) {
+			return delete_term_meta( $term_id, $meta_key );
+		} else {
+			return delete_woocommerce_term_meta( $term_id, $meta_key );
+		}
+	}
+
+	/**
+	 * Gets a term meta. Compatibility function for WC 3.6.
+	 *
+	 * @since 1.6.19
+	 * @param int    $term_id Term ID.
+	 * @param string $key     Meta key.
+	 * @param bool   $single  Whether to return a single value. (default: true).
+	 * @return mixed
+	 */
+	private function get_term_meta( $term_id, $key, $single = true ) {
+		if ( version_compare( WC_VERSION, '3.6', 'ge' ) ) {
+			return get_term_meta( $term_id, $key, $single );
+		} else {
+			return get_woocommerce_term_meta( $term_id, $key, $single );
+		}
+	}
 
 } // end \WC_Points_Rewards_Admin class

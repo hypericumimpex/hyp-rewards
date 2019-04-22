@@ -453,7 +453,7 @@ class WC_Points_Rewards_Product {
 
 			// subscriptions integration - if subscriptions is active check if this is a renewal order
 			if ( self::is_order_renewal( $order ) ) {
-				$renewal_points = get_woocommerce_term_meta( $category_id, '_wc_points_renewal_points', true );
+				$renewal_points = version_compare( WC_VERSION, '3.6', 'ge' ) ? get_term_meta( $category_id, '_wc_points_renewal_points', true ) : get_woocommerce_term_meta( $category_id, '_wc_points_renewal_points', true );
 				$points = ( $renewal_points ) ? $renewal_points : $points;
 			}
 
