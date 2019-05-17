@@ -556,6 +556,12 @@ class WC_Points_Rewards_Cart_Checkout {
 			}
 		}
 
+		// Limit the discount available by the global minimum discount if set.
+		$minimum_discount = get_option( 'wc_points_rewards_cart_min_discount', '' );
+		if ( $minimum_discount > $available_user_discount ) {
+			return 0;
+		}
+
 		$discount_applied = 0;
 
 		if ( ! did_action( 'woocommerce_before_calculate_totals' ) ) {
