@@ -52,7 +52,9 @@ class WC_Points_Rewards_Order {
 
 		$this->maybe_deduct_redeemed_points( $order_id );
 
-		if ( 'on-hold' !== $order->get_status() ) {
+		$paid = null !== $order->get_date_paid( 'edit');
+
+		if ( $paid || 'completed' === $order->get_status() ) {
 			$this->add_points_earned( $order_id );
 		}
 	}

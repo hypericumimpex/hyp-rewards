@@ -1,5 +1,8 @@
 *** WooCommerce Points and Rewards Changelog ***
 
+2019-05-30 - version 1.6.21
+* Fix - Only award points for paid or completed orders.
+
 2019-05-14 - version 1.6.20
 * Feature - Added a new option for setting a minimum product discount when redeeming points.
 
