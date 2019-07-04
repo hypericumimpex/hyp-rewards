@@ -278,7 +278,7 @@ class WC_Points_Rewards_Cart_Checkout {
 		}
 
 		// get the total discount available for redeeming points
-		$discount_available = $this->get_discount_for_redeeming_points();
+		$discount_available = $this->get_discount_for_redeeming_points( false, null, true );
 
 		$message = get_option( 'wc_points_rewards_redeem_points_message' );
 
@@ -538,9 +538,11 @@ class WC_Points_Rewards_Cart_Checkout {
 	 *
 	 * @since 1.0.0
 	 * @version 1.6.5
-	 * @param bool $applying To indicate if this method is called during application of the points.
+	 * @param bool  $applying                  To indicate if this method is called during application of the points.
+	 * @param float $existing_discount_amounts Total amount for existing discount for items in cart.
+	 * @param bool  $for_display               Whether to generate discount amount for message display purposes or for the actual discount.
 	 */
-	public static function get_discount_for_redeeming_points( $applying = false, $existing_discount_amounts = null ) {
+	public static function get_discount_for_redeeming_points( $applying = false, $existing_discount_amounts = null, $for_display = false ) {
 		// get the value of the user's point balance
 		$available_user_discount = WC_Points_Rewards_Manager::get_users_points_value( get_current_user_id() );
 
@@ -585,16 +587,28 @@ class WC_Points_Rewards_Cart_Checkout {
 				// if the discount available is greater than the max discount, apply the max discount
 				$discount = ( $available_user_discount <= $max_discount ) ? $available_user_discount : $max_discount;
 
-				// Max should be product price. As this will be applied before tax, it will respect other coupons.
+			// Max should be product price. As this will be applied before tax, it will respect other coupons.
 			} else {
-
-				// Use the line price - this is the max we can apply here
-				if ( function_exists( 'wc_get_price_including_tax' ) ) {
-					$max_discount = wc_get_price_including_tax( $item['data'], array( 'qty' => $item['quantity'] ) );
-				} elseif ( method_exists( $item['data'], 'get_price_including_tax' ) ) {
-					$max_discount = $item['data']->get_price_including_tax( $item['quantity'] );
+				/*
+				 * Only exclude taxes when configured to in settings and when generating a discount amount for displaying in
+				 * the checkout message. This makes the actual discount money amount always tax inclusive.
+				 */
+				if ( 'exclusive' === get_option( 'wc_points_rewards_points_tax_application', wc_prices_include_tax() ? 'inclusive' : 'exclusive' ) && $for_display ) {
+					if ( function_exists( 'wc_get_price_excluding_tax' ) ) {
+						$max_discount = wc_get_price_excluding_tax( $item['data'], array( 'qty' => $item['quantity'] ) );
+					} elseif ( method_exists( $item['data'], 'get_price_excluding_tax' ) ) {
+						$max_discount = $item['data']->get_price_excluding_tax( $item['quantity'] );
+					} else {
+						$max_discount = $item['data']->get_price( 'edit' ) * $item['quantity'];
+					}
 				} else {
-					$max_discount = $item['data']->get_price( 'edit' ) * $item['quantity'];
+					if ( function_exists( 'wc_get_price_including_tax' ) ) {
+						$max_discount = wc_get_price_including_tax( $item['data'], array( 'qty' => $item['quantity'] ) );
+					} elseif ( method_exists( $item['data'], 'get_price_including_tax' ) ) {
+						$max_discount = $item['data']->get_price_including_tax( $item['quantity'] );
+					} else {
+						$max_discount = $item['data']->get_price( 'edit' ) * $item['quantity'];
+					}
 				}
 
 				// if the discount available is greater than the max discount, apply the max discount

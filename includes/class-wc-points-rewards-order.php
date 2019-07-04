@@ -185,14 +185,7 @@ class WC_Points_Rewards_Order {
 
 		$discount_code = WC_Points_Rewards_Discount::get_discount_code();
 
-		$discount_amount = 0;
-
-		if ( isset( WC()->cart->coupon_discount_amounts[ $discount_code ] ) ) {
-			$discount_amount += WC()->cart->coupon_discount_amounts[ $discount_code ];
-		}
-		if ( ! empty( WC()->cart->prices_include_tax ) && isset( WC()->cart->coupon_discount_tax_amounts[ $discount_code ] ) ) {
-			$discount_amount += WC()->cart->coupon_discount_tax_amounts[ $discount_code ];
-		}
+		$discount_amount = $this->get_discount_from_code( $discount_code );
 
 		$points_redeemed = WC_Points_Rewards_Manager::calculate_points_for_discount( $discount_amount );
 
@@ -239,14 +232,7 @@ class WC_Points_Rewards_Order {
 			$discount_code   = $logged_redemption['discount_code'];
 		} else {
 			// Get amount of discount
-			$discount_amount = 0;
-
-			if ( isset( WC()->cart->coupon_discount_amounts[ $discount_code ] ) ) {
-				$discount_amount += WC()->cart->coupon_discount_amounts[ $discount_code ];
-			}
-			if ( ! empty( WC()->cart->prices_include_tax ) && isset( WC()->cart->coupon_discount_tax_amounts[ $discount_code ] ) ) {
-				$discount_amount += WC()->cart->coupon_discount_tax_amounts[ $discount_code ];
-			}
+			$discount_amount = $this->get_discount_from_code( $discount_code );
 
 			$points_redeemed = WC_Points_Rewards_Manager::calculate_points_for_discount( $discount_amount );
 		}
@@ -264,6 +250,26 @@ class WC_Points_Rewards_Order {
 		// add order note
 		/* translators: 1: points earned 2: points label 3: discount amount */
 		$order->add_order_note( sprintf( __( '%1$d %2$s redeemed for a %3$s discount.', 'woocommerce-points-and-rewards' ), $points_redeemed, $wc_points_rewards->get_points_label( $points_redeemed ), wc_price( $discount_amount ) ) );
+	}
+
+	/**
+	 * Get the discount amount associated with the given code.
+	 *
+	 * @since 1.6.22
+	 * @param string $discount_code The unique discount code generated for the applied discount.
+	 */
+	public function get_discount_from_code( $discount_code ) {
+		$discount_amount = 0;
+
+		if ( isset( WC()->cart->coupon_discount_amounts[ $discount_code ] ) ) {
+			$discount_amount += WC()->cart->coupon_discount_amounts[ $discount_code ];
+		}
+		$tax_inclusive = 'inclusive' === get_option( 'wc_points_rewards_points_tax_application', wc_prices_include_tax() ? 'inclusive' : 'exclusive' );
+		if ( $tax_inclusive && isset( WC()->cart->coupon_discount_tax_amounts[ $discount_code ] ) ) {
+			$discount_amount += WC()->cart->coupon_discount_tax_amounts[ $discount_code ];
+		}
+
+		return $discount_amount;
 	}
 
 	/**

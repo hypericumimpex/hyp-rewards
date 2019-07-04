@@ -1,5 +1,8 @@
 *** WooCommerce Points and Rewards Changelog ***
 
+2019-06-27 - version 1.6.22
+* Feature - Add option to select whether points should be deducted based on pre-tax or post-tax price.
+
 2019-05-30 - version 1.6.21
 * Fix - Only award points for paid or completed orders.
 

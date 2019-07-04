@@ -49,61 +49,61 @@ class WC_Points_Rewards_Admin {
 
 		/** General admin hooks */
 
-		// Load WC styles / scripts
+		// Load WC styles / scripts.
 		add_filter( 'woocommerce_screen_ids', array( $this, 'load_wc_scripts' ) );
 
-		// add 'Points & Rewards' link under WooCommerce menu
+		// add 'Points & Rewards' link under WooCommerce menu.
 		add_action( 'admin_menu', array( $this, 'add_menu_link' ) );
 
-		// enqueue assets
+		// enqueue assets.
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 
-		// manage points / points log list table settings
+		// manage points / points log list table settings.
 		add_action( 'in_admin_header',   array( $this, 'load_list_tables' ) );
 		add_filter( 'set-screen-option', array( $this, 'set_list_table_options' ), 10, 3 );
 		add_filter( 'manage_woocommerce_page_WC_Points_Rewards_columns', array( $this, 'manage_columns' ) );
 
-		// warn that points won't be able to be redeemed if coupons are disabled
+		// warn that points won't be able to be redeemed if coupons are disabled.
 		add_action( 'admin_notices', array( $this, 'verify_coupons_enabled' ) );
 
-		// save settings
+		// save settings.
 		add_action( 'admin_post_save_points_rewards_settings', array( $this, 'save_settings' ) );
 
-		// Add a custom field types
+		// Add a custom field types.
 		add_action( 'woocommerce_admin_field_conversion_ratio', array( $this, 'render_conversion_ratio_field' ) );
 		add_action( 'woocommerce_admin_field_singular_plural',  array( $this, 'render_singular_plural_field' ) );
 		add_action( 'woocommerce_admin_field_points_expiry', array( $this, 'render_points_expiry' ) );
 
-		// save custom field types
+		// save custom field types.
 		add_action( 'init', array( $this, 'save_custom_field_types' ) );
 
-		// Add a apply points woocommerce_admin_fields() field type
+		// Add a apply points woocommerce_admin_fields() field type.
 		add_action( 'woocommerce_admin_field_apply_points', array( $this, 'render_apply_points_section' ) );
 
-		// handle any settings page actions (apply points to previous orders)
+		// handle any settings page actions (apply points to previous orders).
 		add_action( 'woocommerce_admin_field_apply_points', array( $this, 'handle_settings_actions' ) );
 
 		/** Order hooks */
 
-		// Add the points earned/redeemed for a discount to the edit order page
+		// Add the points earned/redeemed for a discount to the edit order page.
 		add_action( 'woocommerce_admin_order_totals_after_shipping', array( $this, 'render_points_earned_redeemed_info' ) );
 
 		/** Coupon hooks */
 
-		// Add coupon points modifier field
+		// Add coupon points modifier field.
 		add_action( 'woocommerce_coupon_options', array( $this, 'render_coupon_points_modifier_field' ) );
 
-		// Save coupon points modifier field
+		// Save coupon points modifier field.
 		add_action( 'woocommerce_process_shop_coupon_meta', array( $this, 'save_coupon_points_modifier_field' ) );
 
-		// Sync variation prices
+		// Sync variation prices.
 		if ( version_compare( WC_VERSION, '3.0.0', '<' ) ) {
 			add_action( 'woocommerce_variable_product_sync', array( $this, 'variable_product_sync' ), 10, 2 );
 		} else {
 			add_action( 'woocommerce_variable_product_sync_data', array( $this, 'variable_product_sync' ), 10 );
 		}
 
-		// Tool to clear points
+		// Tool to clear points.
 		add_filter( 'woocommerce_debug_tools', array( $this, 'woocommerce_debug_tools' ) );
 	}
 
@@ -146,10 +146,10 @@ class WC_Points_Rewards_Admin {
 	public function load_wc_scripts( $screen_ids ) {
 		$wc_screen_id = sanitize_title( __( 'WooCommerce', 'woocommerce' ) );
 
-		// sub-menu page
+		// sub-menu page.
 		$screen_ids[] = $wc_screen_id . '_page_woocommerce-points-and-rewards';
 
-		// add/edit product category page
+		// add/edit product category page.
 		$screen_ids[] = 'edit-product_cat';
 
 		return $screen_ids;
@@ -175,7 +175,7 @@ class WC_Points_Rewards_Admin {
 			array( $this, 'show_sub_menu_page' )
 		);
 
-		// add the Manage Points/Points log list table Screen Options
+		// add the Manage Points/Points log list table Screen Options.
 		add_action( 'load-' . $this->page_id, array( $this, 'add_list_table_options' ) );
 	}
 
@@ -184,9 +184,9 @@ class WC_Points_Rewards_Admin {
 	 * Save our list table options
 	 *
 	 * @since 1.0
-	 * @param string $status unknown
-	 * @param string $option the option name
-	 * @param mixed $value the option value
+	 * @param string $status unknown.
+	 * @param string $option the option name.
+	 * @param mixed $value the option value.
 	 * @return mixed
 	 */
 	public function set_list_table_options( $status, $option, $value ) {
@@ -285,7 +285,7 @@ class WC_Points_Rewards_Admin {
 
 			<?php
 
-				// display tabs
+				// display tabs.
 				foreach ( $this->tabs as $tab_id => $tab_title ) {
 
 					$class = ( $tab_id == $current_tab ) ? 'nav-tab nav-tab-active' : 'nav-tab';
@@ -297,7 +297,7 @@ class WC_Points_Rewards_Admin {
 			?> </h2> <?php
 
 
-			// display tab content, default to 'Manage' tab
+			// display tab content, default to 'Manage' tab.
 			if ( 'log' === $current_tab )
 				$this->show_log_tab();
 			elseif ( 'settings' === $current_tab )
@@ -316,21 +316,21 @@ class WC_Points_Rewards_Admin {
 	 */
 	private function show_manage_tab() {
 
-		// setup 'Manage Points' list table and prepare the data
+		// setup 'Manage Points' list table and prepare the data.
 		$manage_table = $this->get_manage_points_list_table();
 		$manage_table->prepare_items();
 
 		?><form method="post" id="mainform" action="" enctype="multipart/form-data"><?php
 
-		// title/search result string
+		// title/search result string.
 		echo '<h2>' . __( 'Manage Customer Points', 'woocommerce-points-and-rewards' ) . '</h2>';
 
-		// display any action messages
+		// display any action messages.
 		$manage_table->render_messages();
 
 		echo '<input type="hidden" name="page" value="' . esc_attr( $_REQUEST['page'] ) . '" />';
 
-		// display the list table
+		// display the list table.
 		$manage_table->display();
 		?></form><?php
 	}
@@ -343,19 +343,19 @@ class WC_Points_Rewards_Admin {
 	 */
 	private function show_log_tab() {
 
-		// setup 'Points Log' list table and prepare the data
+		// setup 'Points Log' list table and prepare the data.
 		$log_table = $this->get_points_log_list_table();
 		$log_table->prepare_items();
 
 		?><form method="get" id="mainform" action="" enctype="multipart/form-data"><?php
 
-		// title/search result string
+		// title/search result string.
 		echo '<h2>' . __( 'Points Log', 'woocommerce-points-and-rewards' ) . '</h2>';
 
 		echo '<input type="hidden" name="page" value="' . esc_attr( $_REQUEST['page'] ) . '" />';
 		echo '<input type="hidden" name="tab" value="' . esc_attr( $_REQUEST['tab'] ) . '" />';
 
-		// display the list table
+		// display the list table.
 		$log_table->display();
 		?></form><?php
 	}
@@ -463,17 +463,17 @@ class WC_Points_Rewards_Admin {
 	 * @since 1.0
 	 */
 	public function save_settings() {
-	
-		// Check the nonce
+
+		// Check the nonce.
 		check_admin_referer( 'points-rewards-save-settings-verify' );
-	
-		// Save the settings
+
+		// Save the settings.
 		woocommerce_update_options( $this->get_settings() );
-	
-		// Go back to the settings page
-		wp_redirect(  admin_url( 'admin.php?page=woocommerce-points-and-rewards&tab=settings' ) );
-  	
-  		exit;
+
+		// Go back to the settings page.
+		wp_redirect( admin_url( 'admin.php?page=woocommerce-points-and-rewards&tab=settings' ) );
+
+		exit;
 	}
 
 	/**
@@ -508,7 +508,7 @@ class WC_Points_Rewards_Admin {
 				'id'    => 'wc_points_rewards_points_settings_start'
 			),
 
-			// earn points conversion
+			// earn points conversion.
 			array(
 				'title'    => __( 'Earn Points Conversion Rate', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'Set the number of points awarded based on the product price.', 'woocommerce-points-and-rewards' ),
@@ -517,7 +517,7 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'conversion_ratio'
 			),
 
-			// earn points conversion
+			// earn points conversion.
 			array(
 				'title'    => __( 'Earn Points Rounding Mode', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'Set how points should be rounded.', 'woocommerce-points-and-rewards' ),
@@ -531,7 +531,7 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'select'
 			),
 
-			// redeem points conversion
+			// redeem points conversion.
 			array(
 				'title'    => __( 'Redemption Conversion Rate', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'Set the value of points redeemed for a discount.', 'woocommerce-points-and-rewards' ),
@@ -540,7 +540,7 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'conversion_ratio'
 			),
 
-			// redeem points conversion
+			// redeem points conversion.
 			array(
 				'title'    => __( 'Partial Redemption', 'woocommerce-points-and-rewards' ),
 				'desc'     => __( 'Enable partial redemption', 'woocommerce-points-and-rewards' ),
@@ -559,7 +559,7 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'text',
 			),
 
-			// maximum points discount available
+			// maximum points discount available.
 			array(
 				'title'    => __( 'Maximum Points Discount', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'Set the maximum product discount allowed for the cart when redeeming points. Use either a fixed monetary amount or a percentage based on the product price. Leave blank to disable.', 'woocommerce-points-and-rewards' ),
@@ -568,7 +568,7 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'text',
 			),
 
-			// maximum points discount available
+			// maximum points discount available.
 			array(
 				'title'    => __( 'Maximum Product Points Discount', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'Set the maximum product discount allowed when redeeming points per-product. Use either a fixed monetary amount or a percentage based on the product price. Leave blank to disable. This can be overridden at the category and product level.', 'woocommerce-points-and-rewards' ),
@@ -577,7 +577,20 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'text',
 			),
 
-			// points label
+			// Tax settings.
+			array(
+				'title'    => __( 'Tax Setting', 'woocommerce-points-and-rewards' ),
+				'desc_tip' => __( 'Whether or not points should apply to prices inclusive of tax.', 'woocommerce-points-and-rewards' ),
+				'id'       => 'wc_points_rewards_points_tax_application',
+				'default'  => wc_prices_include_tax() ? 'inclusive' : 'exclusive',
+				'options'  => array(
+					'inclusive' => 'Apply points to price inclusive of taxes.',
+					'exclusive' => 'Apply points to price exclusive of taxes.',
+				),
+				'type'     => 'select',
+			),
+
+			// points label.
 			array(
 				'title'    => __( 'Points Label', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'The label used to refer to points on the frontend, singular and plural.', 'woocommerce-points-and-rewards' ),
@@ -586,12 +599,12 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'singular_plural',
 			),
 
-			// Expire Points
+			// Expire Points.
 			array(
-				'title'       => __( 'Points Expire After', 'woocommerce-points-and-rewards' ),
-				'desc_tip'    => __( 'Set the period after which points expire once granted to a user', 'woocommerce-points-and-rewards' ),
-				'type'        => 'points_expiry',
-				'id'          => 'wc_points_rewards_points_expiry'
+				'title'    => __( 'Points Expire After', 'woocommerce-points-and-rewards' ),
+				'desc_tip' => __( 'Set the period after which points expire once granted to a user', 'woocommerce-points-and-rewards' ),
+				'type'     => 'points_expiry',
+				'id'       => 'wc_points_rewards_points_expiry'
 			),
 
 			array( 'type' => 'sectionend', 'id' => 'wc_points_rewards_points_settings_end' ),
@@ -603,7 +616,7 @@ class WC_Points_Rewards_Admin {
 				'id'    => 'wc_points_rewards_messages_start'
 			),
 
-			// single product page message
+			// single product page message.
 			array(
 				'title'    => __( 'Single Product Page Message', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'Add an optional message to the single product page below the price. Customize the message using {points} and {points_label}. Limited HTML is allowed. Leave blank to disable.', 'woocommerce-points-and-rewards' ),
@@ -613,7 +626,7 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'textarea',
 			),
 
-			// variable product page message
+			// variable product page message.
 			array(
 				'title'    => __( 'Variable Product Page Message', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'Add an optional message to the variable product page below the price. Customize the message using {points} and {points_label}. Limited HTML is allowed. Leave blank to disable.', 'woocommerce-points-and-rewards' ),
@@ -623,7 +636,7 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'textarea',
 			),
 
-			// earn points cart/checkout page message
+			// earn points cart/checkout page message.
 			array(
 				'title'    => __( 'Earn Points Cart/Checkout Page Message', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'Displayed on the cart and checkout page when points are earned. Customize the message using {points} and {points_label}. Limited HTML is allowed.', 'woocommerce-points-and-rewards' ),
@@ -633,7 +646,7 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'textarea',
 			),
 
-			// redeem points cart/checkout page message
+			// redeem points cart/checkout page message.
 			array(
 				'title'    => __( 'Redeem Points Cart/Checkout Page Message', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'Displayed on the cart and checkout page when points are available for redemption. Customize the message using {points}, {points_value}, and {points_label}. Limited HTML is allowed.', 'woocommerce-points-and-rewards' ),
@@ -643,7 +656,7 @@ class WC_Points_Rewards_Admin {
 				'type'     => 'textarea',
 			),
 
-			// earned points thank you / order received page message
+			// earned points thank you / order received page message.
 			array(
 				'title'    => __( 'Thank You / Order Received Page Message', 'woocommerce-points-and-rewards' ),
 				'desc_tip' => __( 'Displayed on the thank you / order received page when points were earned. Customize the message using {points}, {total_points}, {points_label}, and {total_points_label}. Limited HTML is allowed.', 'woocommerce-points-and-rewards' ),
@@ -676,7 +689,7 @@ class WC_Points_Rewards_Admin {
 				'button_text' => __( 'Apply Points', 'woocommerce-points-and-rewards' ),
 				'type'        => 'apply_points',
 				'id'          => 'wc_points_rewards_apply_points_to_previous_orders',
-				'class'		  => 'wc-points-rewards-apply-button',
+				'class'       => 'wc-points-rewards-apply-button',
 			),
 
 			array( 'type' => 'sectionend', 'id' => 'wc_points_rewards_points_actions_end' ),
@@ -687,13 +700,13 @@ class WC_Points_Rewards_Admin {
 
 		if ( $integration_settings ) {
 
-			// set defaults
+			// set defaults.
 			foreach ( array_keys( $integration_settings ) as $key ) {
 				if ( ! isset( $integration_settings[ $key ]['css'] ) )  $integration_settings[ $key ]['css']  = 'max-width: 50px;';
 				if ( ! isset( $integration_settings[ $key ]['type'] ) ) $integration_settings[ $key ]['type'] = 'text';
 			}
 
-			// find the start of the Points Earned for Actions settings to splice into
+			// find the start of the Points Earned for Actions settings to splice into.
 			$index = -1;
 			foreach ( $settings as $index => $setting ) {
 				if ( isset( $setting['id'] ) && 'wc_points_rewards_earn_points_for_actions_settings_start' == $setting['id'] )
