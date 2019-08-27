@@ -156,7 +156,7 @@ class WC_Points_Rewards_Order {
 		$points_earned -= min( WC_Points_Rewards_Manager::calculate_points( $discount ), $points_earned );
 
 		// Check if applied coupons have a points modifier and use it to adjust the points earned.
-		$coupons = $order->get_used_coupons();
+		$coupons = version_compare( WC_VERSION, '3.7', 'ge' ) ? $order->get_coupon_codes() : $order->get_used_coupons();
 
 		$points_earned = WC_Points_Rewards_Manager::calculate_points_modification_from_coupons( $points_earned, $coupons );
 
@@ -238,7 +238,8 @@ class WC_Points_Rewards_Order {
 		}
 
 		// only deduct points if they were redeemed for a discount
-		if ( ! in_array( $discount_code, $order->get_used_coupons() ) && in_array( $order->get_status(), $order_statuses ) ) {
+		$coupon_codes = version_compare( WC_VERSION, '3.7', 'ge' ) ? $order->get_coupon_codes() : $order->get_used_coupons();
+		if ( ! in_array( $discount_code, $coupon_codes ) && in_array( $order->get_status(), $order_statuses ) ) {
 			return;
 		}
 
