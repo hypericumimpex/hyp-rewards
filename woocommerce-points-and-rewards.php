@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: HYP Rewards
- * Plugin URI: https://github.com/hypericumimpex/hyp-rewards/
+ * Plugin URI: https://github.com/hypericumimpex/hyp-rewardsd/
  * Description: Reward customers for purchases and other actions with points which can be redeemed for discounts
  * Author: WooCommerce
  * Author URI: https://github.com/hypericumimpex/
