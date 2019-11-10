@@ -621,9 +621,7 @@ class WC_Points_Rewards_Manager {
 				}
 			}
 
-			if ( $points_modifier > 0 ) {
-				$points = $points * ( $points_modifier / 100 );
-			}
+			$points *= $points_modifier / 100;
 		}
 
 		return $points;

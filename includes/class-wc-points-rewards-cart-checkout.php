@@ -39,6 +39,9 @@ class WC_Points_Rewards_Cart_Checkout {
 		add_action( 'woocommerce_before_checkout_form', array( $this, 'render_earn_points_message' ), 5 );
 		add_action( 'woocommerce_before_checkout_form', array( $this, 'render_redeem_points_message' ), 6 );
 
+		// Add javascript used by apply discount button
+		add_action( 'woocommerce_before_cart', array( $this, 'render_discount_javascript' ));
+
 		// add earned points message on the thank you / order received page
 		add_action( 'woocommerce_thankyou', array( $this, 'render_thank_you_message' ) );
 
@@ -307,20 +310,6 @@ class WC_Points_Rewards_Cart_Checkout {
 
 		echo apply_filters( 'wc_points_rewards_redeem_points_message', $message, $discount_available );
 
-		if ( 'yes' === get_option( 'wc_points_rewards_partial_redemption_enabled' ) ) {
-			// Add code to prompt for points amount
-			wc_enqueue_js( '
-				$( "body" ).on( "click", "input.wc_points_rewards_apply_discount", function( e ) {
-					var points = prompt( "' . esc_js( __( 'How many points would you like to apply?', 'woocommerce-points-and-rewards' ) ) . '", "' . $points . '" );
-					if ( null != points && 0 != points ) {
-						$( "input.wc_points_rewards_apply_discount_amount" ).val( points );
-						return true;
-					}
-					return false;
-				});
-			' );
-		}
-
 		// add AJAX submit for applying the discount on the checkout page
 
 		if ( is_checkout() ) {
@@ -494,6 +483,26 @@ class WC_Points_Rewards_Cart_Checkout {
 		} // End if().
 	}
 
+	/**
+	 * Add javascript to footer.
+	 *
+	 * @return void
+	 */
+	public function render_discount_javascript() {
+		if ( 'yes' === get_option( 'wc_points_rewards_partial_redemption_enabled' ) ) {
+			// Add code to prompt for points amount
+			wc_enqueue_js( '
+				$( "body" ).on( "click", "input.wc_points_rewards_apply_discount", function( e ) {
+					var points = prompt( "' . esc_js( __( 'How many points would you like to apply?', 'woocommerce-points-and-rewards' ) ) . '", "' . $points . '" );
+					if ( null != points && 0 != points ) {
+						$( "input.wc_points_rewards_apply_discount_amount" ).val( points );
+						return true;
+					}
+					return false;
+				});
+			' );
+		}
+	}
 
 	/**
 	 * Returns the amount of points earned for the purchase, calculated by getting the points earned for each individual

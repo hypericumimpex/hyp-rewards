@@ -5,14 +5,14 @@
  * Description: Reward customers for purchases and other actions with points which can be redeemed for discounts
  * Author: WooCommerce
  * Author URI: https://github.com/hypericumimpex/
- * Version: 1.6.24
+ * Version: 1.6.25
  * Text Domain: woocommerce-points-and-rewards
  * Domain Path: /languages/
  * Tested up to: 5.0
- * WC tested up to: 3.7
+ * WC tested up to: 3.8
  * WC requires at least: 2.6
  *
- * Copyright: (c) 2013-2017 WooCommerce
+ * Copyright: (c) 2013-2019 Hypericum
  *
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,7 +20,7 @@
  * @package   WC-Points-Rewards
  * @author    WooCommerce
  * @category  Marketing
- * @copyright Copyright (c) 2013, WooCommerce
+ * @copyright Copyright (c) 2019, Hypericum
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  * Woo: 210259:1649b6cca5da8b923b01ca56b5cdd246
  */
@@ -134,7 +134,7 @@ $GLOBALS['wc_points_rewards'] = new WC_Points_Rewards();
 class WC_Points_Rewards {
 
 	/** plugin version number */
-	const VERSION = '1.6.24';
+	const VERSION = '1.6.25';
 
 	/** @var string the plugin path */
 	private $plugin_path;
